@@ -72,11 +72,13 @@ int main(void)
       exit(0);
     }
 
+  fprintf(stdout,   "+===============================+================================+==============+==========+\n");
+  fprintf(stdout,   "| %s\n", stmt2str);
+  fprintf(stdout,   "+===============================+================================+==============+==========+\n");
   MYSQL_ROW row;
   while((row = mysql_fetch_row(query_result)))
-    {
-      fprintf(stdout, "name:%-5s %-12s \tcity:%-27s zipcode:%5d \tactive:%s\n", row[1], row[0], row[2], atoi(row[3]), atoi(row[4]) ? "YES" : "NO");
-    }
+    fprintf(stdout, "|name:%-5s %-12s\t|city:%-27s|zipcode:%5d\t|active:%s|\n", row[1], row[0], row[2], atoi(row[3]), atoi(row[4]) ? "YES" : "NO");
+  fprintf(stdout,   "+===============================+================================+==============+==========+\n");
   
   /*
    * Disconnect & terminate
