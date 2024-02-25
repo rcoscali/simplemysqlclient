@@ -11,6 +11,8 @@ int main(void)
       fprintf(stderr, "could not initialize MySQL client library\n");
       exit(1);
     }
+  else
+    fprintf(stdout, "MySQL client library initialized!\n");
 
   MYSQL mysql_hdl;
   mysql_init(&mysql_hdl);
@@ -28,19 +30,23 @@ int main(void)
               mysql_error(&mysql_hdl));
     }
   else
-    fprintf(stdout, "Connection successful !\n");
+    fprintf(stdout, "Connection successful!\n");
 
+  /*
+   * First statement: count rows in customer table
+   */
   MYSQL_STMT *stmt = mysql_stmt_init(&mysql_hdl);
   MYSQL_BIND bind;
   unsigned long rows;
   my_bool error;
-  
-  mysql_stmt_prepare(stmt, "select COUNT(*) from customer", strlen("select COUNT(*) from customer"));
+
+  char* stmtstr = "select COUNT(*) from customer";
+  mysql_stmt_prepare(stmt, stmtstr, strlen(stmtstr));
   mysql_stmt_execute(stmt);
 
   memset(&bind, 0, sizeof(bind));
   bind.buffer_type = MYSQL_TYPE_LONG;
-  bind.buffer = (char *)&rows;
+  bind.buffer = (unsigned long*)&rows;
   bind.error = &error; 
   
   mysql_stmt_bind_result(stmt, &bind);
@@ -50,7 +56,10 @@ int main(void)
   fprintf(stdout, "Number of lines in customer table = %ld\n", rows);
 
   mysql_stmt_close(stmt);
-  
+
+  /*
+   * Second statement: select a customer with zipcode 85600
+   */
   MYSQL_STMT *stmt2 = mysql_stmt_init(&mysql_hdl);
   MYSQL_BIND bind2[5];
   struct customer_st {
@@ -61,7 +70,8 @@ int main(void)
     unsigned int active;    
   } customer;
 
-  mysql_stmt_prepare(stmt2, "SELECT lastname, firstname, city, zipcode, active FROM customer WHERE zipcode = 85600", strlen("SELECT lastname, firstname, city, zipcode, active FROM customer WHERE zipcode = 85600"));
+  char* stmt2str = "SELECT lastname, firstname, city, zipcode, active FROM customer WHERE zipcode = 85600";
+  mysql_stmt_prepare(stmt2, stmt2str, strlen(stmt2str));
   mysql_stmt_execute(stmt2);
 
   MYSQL_RES* prepare_meta_result = mysql_stmt_result_metadata(stmt2);
@@ -113,6 +123,11 @@ int main(void)
 
   fprintf(stdout, "Customer = %s, %s, %s, %ld, %u\n", customer.firstname, customer.lastname, customer.city, customer.zipcode, customer.active);
 
+  mysql_stmt_close(stmt2);
+
+  /*
+   * Disconnect & terminate
+   */
   mysql_close(&mysql_hdl);
   mysql_library_end();
 
