@@ -18,7 +18,7 @@ int main(void)
   mysql_init(&mysql_hdl);
   if (!mysql_real_connect(&mysql_hdl,
                           "localhost", /* host */
-                          "rcoscali", "password",  /* user & pwd */
+                          "rcoscali", "q7Ft3s1x",  /* user & pwd */
                           "dst",       /* database */
                           0,           /* port */
                           NULL,        /* unix socket */
